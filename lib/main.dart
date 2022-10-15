@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:todolist_assignment/todoList_detail.dart';
+import 'package:todolist_assignment/todo_list_detail.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: todoList(),
+    home: TodoList(),
   ));
 }
 
-class todoList extends StatefulWidget {
-  const todoList({Key? key}) : super(key: key);
+class TodoList extends StatefulWidget {
+  const TodoList({Key? key}) : super(key: key);
 
   @override
-  State<todoList> createState() => _todoListState();
+  State<TodoList> createState() => _TodoListState();
 }
 
 class TodoModel {
   String title;
-  String content;
+//String content;
   bool isDone;
-  TodoModel({required this.title, required this.content, required this.isDone});
+  //TodoModel({required this.title, required this.content, required this.isDone});
+  TodoModel({required this.title, required this.isDone});
 }
 
-class _todoListState extends State<todoList> {
+class _TodoListState extends State<TodoList> {
   List<TodoModel> _todoList = [];
 
   final _todoController = TextEditingController();
@@ -62,7 +63,7 @@ class _todoListState extends State<todoList> {
                       setState(() {
                         _todoList.add(TodoModel(
                           title: _todoController.text,
-                          content: _todoController.text,
+                          // content: _todoController.text,
                           isDone: false,
                         ));
                         _todoController.clear();
@@ -83,11 +84,11 @@ class _todoListState extends State<todoList> {
     return Card(
       child: ListTile(
         onTap: () async {
-          _todoUpdateController.text = todo.content;
-          var ret = await Navigator.push(
+          _todoUpdateController.text = todo.title;
+          var result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => todoList_detail(todo: todo),
+              builder: (context) => TodoListDetail(todo: todo),
               //builder: (context) => todoList_detail(result: ret),
             ),
           );
@@ -125,16 +126,16 @@ class _todoListState extends State<todoList> {
                 );
               });*/
 
-          /* print(ret);
-          if (ret == 'Delete') {
+          print(result);
+          if (result == 'Delete') {
             setState(() {
               _todoList.remove(todo);
             });
-          } else if (ret == 'Update') {
+          } else if (result == 'Update') {
             setState(() {
               todo.title = _todoUpdateController.text;
             });
-          }*/
+          }
         },
         title: Row(
           children: [
@@ -177,5 +178,5 @@ Color getColor(Set<MaterialState> states) {
   if (states.any(interactiveStates.contains)) {
     return Colors.blue;
   }
-  return Colors.red;
+  return Colors.blue;
 }

@@ -2,28 +2,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todolist_assignment/main.dart';
 
-class todoList_detail extends StatefulWidget {
-  TodoModel todo;
+class TodoListDetail extends StatefulWidget {
+  final TodoModel todo;
   final String? restorationId;
 
-  todoList_detail({Key? key, required this.todo, this.restorationId})
+  const TodoListDetail({Key? key, required this.todo, this.restorationId})
       : super(key: key);
 
   @override
-  State<todoList_detail> createState() => _todoList_detailState();
+  State<TodoListDetail> createState() => _TodoListDetailState();
 }
 
-class _todoList_detailState extends State<todoList_detail>
-    with RestorationMixin {
-
+class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
   final _todoUpdateController = TextEditingController();
-  late TodoModel todo;
+  TodoModel? todo;
+
+  @override
+  void initState() {
+    super.initState();
+    todo = TodoModel(
+        //   title: widget.todo.title, content: widget.todo!.content, isDone: false);
+        title: widget.todo.title,
+        isDone: widget.todo.isDone);
+    _todoUpdateController.text = todo!.title;
+  }
 
   @override
   String? get restorationId => widget.restorationId;
 
-  final RestorableDateTime _selectedDate =
-      RestorableDateTime(DateTime.now());
+  final RestorableDateTime _selectedDate = RestorableDateTime(DateTime.now());
   late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
       RestorableRouteFuture<DateTime?>(
     onComplete: _selectDate,
@@ -84,7 +91,7 @@ class _todoList_detailState extends State<todoList_detail>
             onPressed: () {
               print('delete delete');
               setState(() {
-                _todoList.remove(todo);
+                // _todoList.remove(todo);
               });
             },
           )
