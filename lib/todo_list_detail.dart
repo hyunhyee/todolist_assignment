@@ -4,18 +4,18 @@ import 'package:todolist_assignment/main.dart';
 
 class TodoListDetail extends StatefulWidget {
   final TodoModel todo;
-  final String? restorationId;
 
-  const TodoListDetail({Key? key, required this.todo, this.restorationId})
-      : super(key: key);
+  const TodoListDetail({Key? key, required this.todo}) : super(key: key);
 
   @override
   State<TodoListDetail> createState() => _TodoListDetailState();
 }
 
-class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
+class _TodoListDetailState extends State<TodoListDetail> {
   final _todoUpdateController = TextEditingController();
   TodoModel? todo;
+
+  late DateTime pickedDate;
 
   @override
   void initState() {
@@ -25,58 +25,7 @@ class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
         title: widget.todo.title,
         isDone: widget.todo.isDone);
     _todoUpdateController.text = todo!.title;
-  }
-
-  @override
-  String? get restorationId => widget.restorationId;
-
-  final RestorableDateTime _selectedDate = RestorableDateTime(DateTime.now());
-  late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
-      RestorableRouteFuture<DateTime?>(
-    onComplete: _selectDate,
-    onPresent: (NavigatorState navigator, Object? arguments) {
-      return navigator.restorablePush(
-        _datePickerRoute,
-        arguments: _selectedDate.value.millisecondsSinceEpoch,
-      );
-    },
-  );
-
-  static Route<DateTime> _datePickerRoute(
-    BuildContext context,
-    Object? arguments,
-  ) {
-    return DialogRoute<DateTime>(
-      context: context,
-      builder: (BuildContext context) {
-        return DatePickerDialog(
-          restorationId: 'date_picker_dialog',
-          initialEntryMode: DatePickerEntryMode.calendarOnly,
-          initialDate: DateTime.fromMillisecondsSinceEpoch(arguments! as int),
-          firstDate: DateTime(2022),
-          lastDate: DateTime(2023),
-        );
-      },
-    );
-  }
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_selectedDate, 'selected_date');
-    registerForRestoration(
-        _restorableDatePickerRouteFuture, 'date_picker_route_future');
-  }
-
-  void _selectDate(DateTime? newSelectedDate) {
-    if (newSelectedDate != null) {
-      setState(() {
-        _selectedDate.value = newSelectedDate;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Selected: ${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}'),
-        ));
-      });
-    }
+    pickedDate = DateTime.now();
   }
 
   @override
@@ -89,10 +38,7 @@ class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
               Icons.delete,
             ),
             onPressed: () {
-              print('delete delete');
-              setState(() {
-                // _todoList.remove(todo);
-              });
+              Navigator.of(context).pop('Delete');
             },
           )
         ],
@@ -103,7 +49,6 @@ class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
             controller: _todoUpdateController,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              // hintText: todo.title,
             ),
           ),
           Row(
@@ -114,17 +59,30 @@ class _TodoListDetailState extends State<TodoListDetail> with RestorationMixin {
           Row(
             children: [
               Text('마감기한'),
-              Text(
-                  '${_selectedDate.value.year}-${_selectedDate.value.month}-${_selectedDate.value.day}'),
+              Text('${pickedDate.year}-${pickedDate.month}-${pickedDate.day}'),
               OutlinedButton(
-                onPressed: () {
-                  _restorableDatePickerRouteFuture.present();
+                onPressed: () async {
+                  DateTime? date = await showDatePicker(
+                    context: context,
+                    initialDate: pickedDate,
+                    firstDate: DateTime(DateTime.now().year - 5),
+                    lastDate: DateTime(DateTime.now().year + 5),
+                  );
+                  if (date != null)
+                    setState(() {
+                      pickedDate = date;
+                    });
                 },
                 child: const Text('마감 기한 설정'),
               ),
             ],
           ),
-          FloatingActionButton(onPressed: () {}),
+          FloatingActionButton(onPressed: () {
+            setState(() {
+              todo!.title = _todoUpdateController.text;
+            });
+            Navigator.of(context).pop('Update');
+          }),
         ],
       ),
     );

@@ -89,7 +89,6 @@ class _TodoListState extends State<TodoList> {
             context,
             MaterialPageRoute(
               builder: (context) => TodoListDetail(todo: todo),
-              //builder: (context) => todoList_detail(result: ret),
             ),
           );
 
