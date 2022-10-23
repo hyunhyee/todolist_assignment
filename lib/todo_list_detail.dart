@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todolist_assignment/main.dart';
+import 'package:todolist_assignment/model/todo_arguments.dart';
 
 class TodoListDetail extends StatefulWidget {
-  final TodoModel todo;
+  final TodoArguments args;
 
-  const TodoListDetail({Key? key, required this.todo}) : super(key: key);
+  const TodoListDetail({Key? key, required this.args}) : super(key: key);
 
   @override
   State<TodoListDetail> createState() => _TodoListDetailState();
@@ -13,18 +14,13 @@ class TodoListDetail extends StatefulWidget {
 
 class _TodoListDetailState extends State<TodoListDetail> {
   final _todoUpdateController = TextEditingController();
-  TodoModel? todo;
 
   late DateTime pickedDate;
 
   @override
   void initState() {
     super.initState();
-    todo = TodoModel(
-        //   title: widget.todo.title, content: widget.todo!.content, isDone: false);
-        title: widget.todo.title,
-        isDone: widget.todo.isDone);
-    _todoUpdateController.text = todo!.title;
+    _todoUpdateController.text = widget.args.item.title;
     pickedDate = DateTime.now();
   }
 
@@ -38,7 +34,13 @@ class _TodoListDetailState extends State<TodoListDetail> {
               Icons.delete,
             ),
             onPressed: () {
-              Navigator.of(context).pop('Delete');
+              Navigator.of(context).pop(TodoArguments(
+                  item: TodoModel(
+                    title: _todoUpdateController.text,
+                    isDone: false,
+                  ),
+                  index: widget.args.index,
+                  isDelete: true));
             },
           )
         ],
@@ -79,9 +81,15 @@ class _TodoListDetailState extends State<TodoListDetail> {
           ),
           FloatingActionButton(onPressed: () {
             setState(() {
-              todo!.title = _todoUpdateController.text;
+              widget.args.item.title = _todoUpdateController.text;
             });
-            Navigator.of(context).pop('Update');
+            Navigator.of(context).pop(TodoArguments(
+                item: TodoModel(
+                  title: _todoUpdateController.text,
+                  isDone: false,
+                ),
+                index: widget.args.index,
+                isUpdate: true));
           }),
         ],
       ),

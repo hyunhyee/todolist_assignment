@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist_assignment/model/todo_arguments.dart';
 import 'package:todolist_assignment/todo_list_detail.dart';
 
 void main() {
@@ -40,7 +41,7 @@ class _TodoListState extends State<TodoList> {
             child: ListView.builder(
               itemCount: _todoList.length,
               itemBuilder: (context, index) {
-                return listItemCardWidget(_todoList[index]);
+                return listItemCardWidget(_todoList[index], index, context);
               },
             ),
           ),
@@ -80,18 +81,18 @@ class _TodoListState extends State<TodoList> {
     );
   }
 
-  Widget listItemCardWidget(TodoModel todo) {
+  Widget listItemCardWidget(TodoModel todo, int index, BuildContext context) {
     return Card(
       child: ListTile(
         onTap: () async {
           _todoUpdateController.text = todo.title;
-          var result = await Navigator.push(
+          TodoArguments? result = await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => TodoListDetail(todo: todo),
+            MaterialPageRoute<TodoArguments>(
+              builder: (context) =>
+                  TodoListDetail(args: TodoArguments(item: todo, index: index)),
             ),
           );
-
           /*showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -124,15 +125,14 @@ class _TodoListState extends State<TodoList> {
                   ],
                 );
               });*/
-
           print(result);
-          if (result == 'Delete') {
+          if (result != null && result.isDelete) {
             setState(() {
-              _todoList.remove(todo);
+              _todoList.removeAt(result.index);
             });
-          } else if (result == 'Update') {
+          } else if (result != null && result.isUpdate) {
             setState(() {
-              todo.title = _todoUpdateController.text;
+              _todoList[result.index] = result.item;
             });
           }
         },
